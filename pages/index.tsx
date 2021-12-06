@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
 import Login from "../components/Login";
 import styles from "../styles/Home.module.css";
-import firebase from "../firebase/firebaseClient";
+import { auth } from "../firebase/firebaseClient";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { createCheckoutSession } from "../stripe/createCheckoutSession";
 import usePremiumStatus from "../stripe/usePremiumStatus";
 
 export default function Home() {
-	const [user, userLoading] = useAuthState(firebase.auth());
+	const [user, userLoading] = useAuthState(auth);
 	const userIsPremium = usePremiumStatus(user);
 
 	return (
@@ -19,17 +18,20 @@ export default function Home() {
 					<h1>Hello, {user.displayName}</h1>
 					{!userIsPremium ? (
 						<>
-							<button
-								onClick={() => createCheckoutSession(user.uid)}
-							>
+							<button onClick={() => createCheckoutSession(user)}>
 								Upgrade to premium!
 							</button>
-							<button onClick={() => firebase.auth().signOut()}>
-								Upgrade to premium!
+							<button onClick={() => auth.signOut()}>
+								sign out!
 							</button>
 						</>
 					) : (
-						<h2>Have a cookie 🍪 Premium customer!</h2>
+						<>
+							<h2>Have a cookie 🍪 Premium customer!</h2>
+							<button onClick={() => auth.signOut()}>
+								sign out!
+							</button>
+						</>
 					)}
 				</div>
 			)}

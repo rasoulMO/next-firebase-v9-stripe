@@ -1,27 +1,26 @@
 import React, { ReactElement } from "react";
-import firebase from "../firebase/firebaseClient";
+import { auth } from "../firebase/firebaseClient";
+import { GoogleAuthProvider, signInWithPopup, User } from "firebase/auth";
+import { db } from "../firebase/firebaseClient";
+import { doc, setDoc } from "firebase/firestore";
 
 interface Props {}
 
-export default function Login({}: Props): ReactElement {
-	async function signInWithGoogle() {
-		const userCredentials = await firebase
-			.auth()
-			.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-
-		console.log({ ...userCredentials.user });
-
-		firebase
-			.firestore()
-			.collection("users")
-			.doc(userCredentials.user.uid)
-			.set({
-				uid: userCredentials.user.uid,
-				email: userCredentials.user.email,
-				name: userCredentials.user.displayName,
-				provider: userCredentials.user.providerData[0].providerId,
-				photoUrl: userCredentials.user.photoURL,
-			});
+export default function Login(): ReactElement {
+	function signInWithGoogle() {
+		const provider = new GoogleAuthProvider();
+		return signInWithPopup(auth, provider).then(async function (result) {
+			const user: User = result.user;
+			if (user) {
+				const userRef = doc(db, `users/${user.uid}`);
+				await setDoc(userRef, {
+					displayName: user.displayName,
+					email: user.email,
+					photoURL: user.photoURL,
+					uid: user.uid,
+				});
+			}
+		});
 	}
 
 	return (

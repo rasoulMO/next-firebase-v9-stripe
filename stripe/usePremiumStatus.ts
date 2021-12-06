@@ -1,8 +1,8 @@
+import { User } from "firebase/auth";
 import { useState, useEffect } from "react";
-import firebase from "../firebase/firebaseClient";
 import isUserPremium from "./isUserPremium";
 
-export default function usePremiumStatus(user: firebase.User) {
+export default function usePremiumStatus(user: User) {
   const [premiumStatus, setPremiumStatus] = useState<boolean>(false);
 
   useEffect(() => {
